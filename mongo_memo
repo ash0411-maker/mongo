@@ -1,0 +1,84 @@
+## 基本操作
+- データベース一覧
+  - show dbs
+- データベースをの作成・作成済みのデータベースに切り替える
+  - use databse_name
+  - MongoDB ではデータベースはその中にcollection・documentを作るまで存在しない
+- collectionの作成
+  - db.createCollection("コレクション名")
+- 現在使っているdbの確認
+  - db.stats()
+- 使用しているデータベースの削除
+  - db.dropDatabase()
+
+
+## collection操作
+- collection一覧
+  - show collections
+- collection名の変更
+  - db.{変更したいcollection名}.renameCollection("変更後のcollection名");
+- collectinの削除
+  - db.{collection}.drop()
+
+
+
+## document操作
+- documentの数を調べる
+  - db.{collection}.count()
+- 全データの表示
+  - db.{collection}.find()
+- 全件削除
+  - db.collection.remove({})
+- collectionはdocumentを挿入すると自動的に作成される
+- collecton・documentの同時作成
+
+  ```bash
+  db.users.insert(
+    {
+      name: "uetani",
+      score: 30
+    }
+  )
+  ```
+- mongoはjsを使える
+  ```js
+  for (var i = 0; i < 10; i++) {
+    db.users.insert({
+      score: Math.random()
+    })
+  }
+  ```
+
+## データの抽出
+- teamがteam-1のデータを抽出
+  - db.users.find({team: "team-1"})
+- scoreが50以上のデータを抽出
+  - db.users.find({score: $gte: 50})
+    - gte → greater than equal = 以上
+    - gt  → greater than       = より上
+    - lte → less than equal    = 以下
+    - gt  → less than          = より下
+    - eq  → イコール
+    - ne  → not イコール
+  - 正規表現も使える（「t」を含むteam）
+    - db.users.find({team: /t/})
+- fieldにどんな値があるか確認する
+  - db.users.distinct("team")
+
+## 複数条件の抽出
+- nameに「i」が含まれていて、scoreが50以上のデータを抽出（and検索）
+  - db.users.find({name: /i/, score: {$gte:50}})
+- nameに「i」が含まれているか、scoreが50以上のデータを抽出（or検索）
+  - db.users.find({$or: [{name: /i/}, {score:{$gte: 50}}]})
+- 特定のフィールド内でのor検索
+  - db.users.find({score: {$in: [52, 66]}})
+
+## 表示するfieldを指定
+- 全件の指定したfieldのみを表示
+  - db.users.find({}, {name: true, score: true})
+- idは非表示にできる
+  - db.users.find({}, {_id: false, score: true})
+
+## 抽出条件の加工
+- sort → 1は昇順・-1は降順
+  - db.users.find({}, {_id: false}).sort({score: 1})
